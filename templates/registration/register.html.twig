@@ -19,17 +19,15 @@
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" id="password" name="plainPassword" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
-                <p id="password-error" class="text-red-500 text-sm mt-1 hidden"></p>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                <input type="text" id="username" name="username" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+                <p id="username-error" class="text-red-500 text-sm mt-1 hidden"></p>
             </div>
 
             <div>
-                <label for="agreeTerms" class="inline-flex items-center">
-                    <input type="checkbox" id="agreeTerms" name="agreeTerms" class="form-checkbox text-indigo-600" />
-                    <span class="ml-2 text-sm">J'ai lu et accepté les termes de services</span>
-                </label>
-                <p id="terms-error" class="text-red-500 text-sm mt-1 hidden"></p>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" name="plainPassword" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+                <p id="password-error" class="text-red-500 text-sm mt-1 hidden"></p>
             </div>
 
             <div class="text-center">
@@ -39,71 +37,79 @@
     </div>
 
     <script>
-        const form = document.getElementById('registration-form');
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const agreeTerms = document.getElementById('agreeTerms').checked;
+    const form = document.getElementById('registration-form');
+    
+    form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-            const errors = validateForm(email, password, agreeTerms);
+    const errors = validateForm(email, username, password);
 
-            if (Object.keys(errors).length > 0) {
-                showErrors(errors);
-                return;
-            }
+    if (Object.keys(errors).length > 0) {
+        showErrors(errors);
+        return;
+    }
 
-            const data = { email, plainPassword: password, agreeTerms };
+    const data = { email, username, plainPassword: password };
 
-            try {
-                const response = await fetch('YOUR_API_URL_HERE', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    // Handle successful registration (e.g., redirect or show a success message)
-                    alert('Registration successful');
-                } else {
-                    // Handle errors from the API
-                    alert(result.message || 'Registration failed');
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
+    try {
+        const response = await fetch('https://localhost:8000/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
         });
+        
+        const result = await response.json();
 
-        function validateForm(email, password, agreeTerms) {
-            const errors = {};
-            if (!email) {
-                errors.email = 'Email is required';
-            }
-            if (!password) {
-                errors.password = 'Password is required';
-            }
-            if (!agreeTerms) {
-                errors.agreeTerms = 'You must agree to the terms';
-            }
-            return errors;
-        }
+        if (response.ok) {
+            if (result.token) {
+                // Stocker le JWT dans le localStorage
+                localStorage.setItem('jwt', result.token);
 
-        function showErrors(errors) {
-            document.getElementById('email-error').textContent = errors.email || '';
-            document.getElementById('password-error').textContent = errors.password || '';
-            document.getElementById('terms-error').textContent = errors.agreeTerms || '';
-            
-            document.getElementById('email-error').classList.toggle('hidden', !errors.email);
-            document.getElementById('password-error').classList.toggle('hidden', !errors.password);
-            document.getElementById('terms-error').classList.toggle('hidden', !errors.agreeTerms);
+                // Redirection vers la page d'accueil
+                window.location.href = '/';
+            } else {
+                alert('Token missing in the response');
+            }
+        } else {
+            alert(result.message || 'Registration failed');
         }
-    </script>
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+});
+
+
+    function validateForm(email, username, password) {
+        const errors = {};
+        if (!email) {
+            errors.email = 'Email is required';
+        }
+        if (!username) {
+            errors.username = 'Username is required'; // Validation pour le username
+        }
+        if (!password) {
+            errors.password = 'Password is required';
+        }
+        return errors;
+    }
+
+    function showErrors(errors) {
+        document.getElementById('email-error').textContent = errors.email || '';
+        document.getElementById('username-error').textContent = errors.username || ''; // Affichage des erreurs pour le username
+        document.getElementById('password-error').textContent = errors.password || '';
+        
+        document.getElementById('email-error').classList.toggle('hidden', !errors.email);
+        document.getElementById('username-error').classList.toggle('hidden', !errors.username); // Gestion de l'affichage de l'erreur pour le username
+        document.getElementById('password-error').classList.toggle('hidden', !errors.password);
+    }
+</script>
+
 
 </body>
 </html>
