@@ -1,0 +1,5 @@
+lexik_jwt_authentication:
+    secret_key: '%env(JWT_SECRET_KEY)%'  # Clé privée pour signer les tokens
+    public_key: '%env(JWT_PUBLIC_KEY)%'  # Clé publique pour vérifier les tokens
+    pass_phrase: '%env(JWT_PASSPHRASE)%'  # Phrase secrète utilisée pour protéger la clé privée
+    token_ttl: 3600  # Durée de validité du token (1 heure)
