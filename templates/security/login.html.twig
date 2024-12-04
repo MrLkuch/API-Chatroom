@@ -1,37 +1,124 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
 
-{% block title %}Log in!{% endblock %}
+    <div class="max-w-lg mx-auto p-8 bg-white rounded-lg shadow-md mt-10">
+        <h1 class="text-2xl font-semibold text-center mb-6">Please sign in</h1>
 
-{% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+        <!-- Error Message -->
+        <div id="error-message" class="hidden text-red-500 mb-4 text-center"></div>
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+        <!-- User Information -->
+        <div id="user-info" class="hidden mb-4 text-center">
+            You are logged in as <span id="username"></span>, <a href="#" id="logout-link" class="text-blue-500">Logout</a>
         </div>
-    {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" name="email" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required autofocus>
+            </div>
 
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" name="password" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+            </div>
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
+            <div class="flex items-center">
+                <input type="checkbox" id="remember_me" name="_remember_me" class="form-checkbox text-indigo-600">
+                <label for="remember_me" class="ml-2 text-sm">Remember me</label>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 focus:outline-none">Sign in</button>
+            </div>
+        </form>
+
+        <input type="hidden" id="csrf_token" value="YOUR_CSRF_TOKEN_HERE">
     </div>
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
-{% endblock %}
+    <script>
+        // Simulate checking if user is logged in (this should be replaced with actual session check)
+        const isLoggedIn = false;  // Set to `true` if user is logged in
+
+        if (isLoggedIn) {
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('username').textContent = 'user@example.com';  // Replace with actual username
+            document.getElementById('logout-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+            });
+        }
+
+        const form = document.getElementById('login-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember_me').checked;
+            const csrfToken = document.getElementById('csrf_token').value;
+
+            const errors = validateForm(email, password);
+
+            if (Object.keys(errors).length > 0) {
+                showError(errors);
+                return;
+            }
+
+            const data = { email, password, remember_me: rememberMe, _csrf_token: csrfToken };
+
+            try {
+                const response = await fetch('YOUR_API_URL_HERE/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Login successful');
+                    // Redirect or handle post-login actions
+                } else {
+                    showError({ general: result.message || 'Login failed' });
+                }
+            } catch (error) {
+                showError({ general: 'Error: ' + error.message });
+            }
+        });
+
+        function validateForm(email, password) {
+            const errors = {};
+            if (!email) {
+                errors.email = 'Email is required';
+            }
+            if (!password) {
+                errors.password = 'Password is required';
+            }
+            return errors;
+        }
+
+        function showError(errors) {
+            const errorMessageDiv = document.getElementById('error-message');
+            errorMessageDiv.textContent = errors.general || '';
+            errorMessageDiv.classList.remove('hidden');
+        }
+
+        function logout() {
+            // Implement logout functionality (clear session or token)
+            alert('Logged out');
+        }
+    </script>
+
+</body>
+</html>

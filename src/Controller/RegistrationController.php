@@ -71,4 +71,11 @@ class RegistrationController extends AbstractController
             'token' => $token,
         ], JsonResponse::HTTP_CREATED);
     }
+
+    #[Route('/register', name: 'app_register', methods: ['GET'])]
+    public function affichage()
+    {
+        // Logique pour afficher le formulaire d'inscription
+        return $this->render('registration/register.html.twig');
+    }
 }
