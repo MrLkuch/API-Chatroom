@@ -66,4 +66,11 @@ class SecurityController extends AbstractController
         // In a stateless API, logout is handled by the client deleting the token
         return $this->json(['message' => 'Logout successful'], JsonResponse::HTTP_OK);
     }
+
+    #[Route('/login', name: 'app_login', methods: ['GET'])]
+    public function affichage()
+    {
+        // Logique pour afficher le formulaire d'inscription
+        return $this->render('security/login.html.twig');
+    }
 }
